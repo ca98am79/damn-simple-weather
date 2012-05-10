@@ -1,1 +1,1 @@
-web: node damn-simple-weather.js
+web: node cold-or-not.js
