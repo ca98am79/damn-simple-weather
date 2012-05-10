@@ -1,11 +1,12 @@
 {
-  "name": "damn-simple-weather",
+  "name": "cold-or-not",
   "version": "0.1.0",
   "dependencies": {
     "express": "2.5.9",
     "request": "2.9.202",
     "libxml-to-js": "0.3.10",
     "date-utils": "1.2.10",
-    "ejs": "0.7.1"
+    "ejs": "0.7.1",
+    "cookies": "0.3.0"
   }
 }
