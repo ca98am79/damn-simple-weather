@@ -1,4 +1,5 @@
 require('date-utils');
+var Cookies = require('cookies');
 var express = require('express');
 var request = require('request');
 var xml_parser = require('libxml-to-js');
@@ -17,8 +18,18 @@ function NOAA_weather_api_str(zip) {
 }
 
 app.get('/', function(req, res){
-    if(req.query.zip) {
-        get_weather(res, req.query.zip, render_weather);
+    var cookies = new Cookies( req, res )
+    , unsigned
+
+    if (req.query.zip) {
+	zip_code = req.query.zip;
+	cookies.set( "zip_code", zip_code, { httpOnly: false } );
+    } else {
+    	zip_code = cookies.get( "zip_code" );
+    }
+
+    if(zip_code) {
+        get_weather(res, zip_code, render_weather);
     } else {
         res.render("index.ejs");
     }
