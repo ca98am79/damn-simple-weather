@@ -140,5 +140,5 @@ function merge_objects(obj1, obj2) {
     return obj3;
 }
 
-app.listen(process.env.PORT || 6767);
+app.listen(process.env.PORT || 80);
 
