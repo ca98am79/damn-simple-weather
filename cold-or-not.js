@@ -23,12 +23,12 @@ app.get('/', function(req, res){
     var zip_code = null;
 
     if (req.query.new) {
-  	cookies.set( "zip_code", '', { httpOnly: false } );
+  	cookies.set( "zip_code", '');
     } else if (req.query.zip) {
 	zip_code = req.query.zip;
-        var expire_date = Date.today();
-        expire_date.add({years: 2});
-	cookies.set( "zip_code", zip_code, { httpOnly: false, expires: expire_date } );
+        var expire_date = new Date();
+	expire_date.setDate(expire_date.getDate() + 200); 
+	cookies.set( "zip_code", zip_code, { expires: expire_date } );
     } else {
     	zip_code = cookies.get( "zip_code" );
     }
@@ -52,7 +52,7 @@ function render_weather(zip, res, error, weather) {
         };
     }
     if(error) {
-        cookies.set( "zip_code", '', { httpOnly: false } );
+        cookies.set( "zip_code", '');
         res.send(error);
     } else {
 	var coldness = 'Cold';
