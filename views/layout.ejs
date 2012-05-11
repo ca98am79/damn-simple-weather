@@ -1,5 +1,18 @@
 <html>
-  <head><title>Cold or not</title></head>
+  <head>
+	<title>Cold or not</title>
+  	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js" ></script>
+  	<script>
+		$(document).ready(function() {
+    		$('form:first *:input[type!=hidden]:first').select();
+});
+  	</script>
+  	<style>
+		span.cold { color: green; }
+		span.notcold { color: red; }
+	</style>
+  </head>
   <body>
     <div style="text-align:center; font-family:Courier; font-size: 50px">
       <%- body %>

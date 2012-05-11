@@ -55,10 +55,21 @@ function render_weather(zip, res, error, weather) {
         cookies.set( "zip_code", '', { httpOnly: false } );
         res.send(error);
     } else {
+	var coldness = 'Cold';
+	var coldclass = 'cold';
+	var temp = weather.temp ? weather.temp : weather.min_temp;
+	if (temp >= 50) {
+		coldness = 'Not cold';
+		coldclass = 'notcold';
+	} else if (temp > 40) {
+		coldness = 'Kind of cold';
+	}
         res.render("weather_for_zip", {
           weather: weather,
           zip: zip,
-          today: Date.today().toFormat("YYYY-MM-DD")
+          today: Date.today().toFormat("YYYY-MM-DD"),
+	  coldness: coldness,
+	  coldclass: coldclass
         });
     }
 }

@@ -1,5 +1,5 @@
 <%=today%> <br />
-Weather @<%=zip%> <a href="/?new=1" style="font-size:10px">change zip</a>
+<span class="<%=coldclass%>"><%=coldness%></span> @<%=zip%> <a href="/?new=1" style="font-size:10px">change zip</a>
 <br /><br />
 <% if(weather.temp) { %>
   <%=weather.temp%>F <br />
