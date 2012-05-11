@@ -23,7 +23,9 @@ app.get('/', function(req, res){
 
     if (req.query.zip) {
 	zip_code = req.query.zip;
-	cookies.set( "zip_code", zip_code, { httpOnly: false } );
+        var expire_date = Date.today();
+        expire_date.add({years: 2});
+	cookies.set( "zip_code", zip_code, { httpOnly: false, expires: expire_date } );
     } else {
     	zip_code = cookies.get( "zip_code" );
     }
@@ -46,6 +48,7 @@ function render_weather(zip, res, error, weather) {
         };
     }
     if(error) {
+        cookies.set( "zip_code", '', { httpOnly: false, expires: Date.yesterday() } );
         res.send(error);
     } else {
         res.render("weather_for_zip", {
@@ -65,16 +68,16 @@ function get_weather(res, zip, callback) {
             if(!error && response.statusCode == 200) {
                 xml_parser(body, function (parser_error, result) {
                     if(parser_error) {
-                        callback(zip, res, "Parser error: " + parser_error);
+                        callback(zip, res, parser_error);
                     } else if(result.error) {
-                        callback(zip, res, "API error " + result.error);
+                        callback(zip, res, result.error);
                     } else if(result && result.data) {
                         //console.log("cache miss");
                         weather = parse_NOAA_response(result);
                         cache["z" + zip] = weather;
                         callback(zip, res, null, weather);
                     } else {
-                        callback(zip, res, "Zip code not found??");
+                        callback(zip, res, "Zip code not found");
                     }
                 });
             } else {
