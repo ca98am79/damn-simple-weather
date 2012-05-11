@@ -3,6 +3,7 @@ var Cookies = require('cookies');
 var express = require('express');
 var request = require('request');
 var xml_parser = require('libxml-to-js');
+var cookies = null;
 
 var app = express.createServer();
 app.set("view engine", "ejs");
@@ -18,10 +19,12 @@ function NOAA_weather_api_str(zip) {
 }
 
 app.get('/', function(req, res){
-    var cookies = new Cookies( req, res )
-    , unsigned
+    cookies = new Cookies( req, res );
+    var zip_code = null;
 
-    if (req.query.zip) {
+    if (req.query.new) {
+  	cookies.set( "zip_code", '', { httpOnly: false } );
+    } else if (req.query.zip) {
 	zip_code = req.query.zip;
         var expire_date = Date.today();
         expire_date.add({years: 2});
@@ -38,6 +41,7 @@ app.get('/', function(req, res){
 });
 
 app.get('/:zip', function(req, res){
+    cookies = new Cookies( req, res );
     get_weather(res, req.params.zip, render_weather);
 });
 
@@ -48,7 +52,7 @@ function render_weather(zip, res, error, weather) {
         };
     }
     if(error) {
-        cookies.set( "zip_code", '', { httpOnly: false, expires: Date.yesterday() } );
+        cookies.set( "zip_code", '', { httpOnly: false } );
         res.send(error);
     } else {
         res.render("weather_for_zip", {
