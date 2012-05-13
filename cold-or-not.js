@@ -4,8 +4,10 @@ var request = require('request');
 var xml_parser = require('libxml-to-js');
 
 var app = express.createServer();
+app.use(express.logger());
 app.use(express.cookieParser());
 app.set("view engine", "ejs");
+app.use("/css", express.static(__dirname + '/css'));
 
 var cache = {
   date: Date.today()
@@ -25,8 +27,8 @@ app.get('/', function(req, res){
     } else if (req.query.zip) {
 	zip_code = req.query.zip;
         var expire_date = new Date();
-	expire_date.setDate(expire_date.getDate() + 200); 
-	res.cookie('zip_code', zip_code, { expires: expire_date, httpOnly: true });
+	expire_date.setDate(expire_date.getDate() + 30);
+	res.cookie('zip_code', zip_code, { expires: expire_date });
     } else {
     	zip_code = req.cookies.zip_code;
     }
@@ -39,7 +41,11 @@ app.get('/', function(req, res){
 });
 
 app.get('/:zip', function(req, res){
-    get_weather(res, req.params.zip, render_weather);
+    if (isNumber(req.params.zip)) {
+        get_weather(res, req.params.zip, render_weather);
+    } else {
+        res.render("index.ejs");
+    }
 });
 
 function render_weather(zip, res, error, weather) {
@@ -50,6 +56,7 @@ function render_weather(zip, res, error, weather) {
     }
     if(error) {
         res.clearCookie('zip_code');
+        console.log(error);
         res.send(error);
     } else {
 	var coldness = 'Cold';
@@ -75,7 +82,7 @@ function get_weather(res, zip, callback) {
     if(cache["z" + zip] !== undefined) {
         //console.log("cache hit");
         callback(zip, res, null, cache["z" + zip]);
-    } else {
+    } else if (isNumber(zip)) {
         request(NOAA_weather_api_str(zip), function (error, response, body) {
             if(!error && response.statusCode == 200) {
                 xml_parser(body, function (parser_error, result) {
@@ -96,6 +103,8 @@ function get_weather(res, zip, callback) {
                 callback(zip, res, "There was an error" + error);
             }
         });
+    } else {
+        callback(zip, res, "Zip code not found");
     }
 }
 
@@ -164,6 +173,10 @@ function merge_objects(obj1, obj2) {
     for (var attrname in obj1) { obj3[attrname] = obj1[attrname]; }
     for (var attrname in obj2) { obj3[attrname] = obj2[attrname]; }
     return obj3;
+}
+
+function isNumber (o) {
+  return ! isNaN (o-0) && o != null;
 }
 
 app.listen(process.env.PORT || 80);
