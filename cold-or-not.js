@@ -1,11 +1,10 @@
 require('date-utils');
-var Cookies = require('cookies');
 var express = require('express');
 var request = require('request');
 var xml_parser = require('libxml-to-js');
-var cookies = null;
 
 var app = express.createServer();
+app.use(express.cookieParser());
 app.set("view engine", "ejs");
 
 var cache = {
@@ -19,18 +18,17 @@ function NOAA_weather_api_str(zip) {
 }
 
 app.get('/', function(req, res){
-    cookies = new Cookies( req, res );
     var zip_code = null;
 
     if (req.query.new) {
-  	cookies.set( "zip_code", '');
+  	res.clearCookie('zip_code');
     } else if (req.query.zip) {
 	zip_code = req.query.zip;
         var expire_date = new Date();
 	expire_date.setDate(expire_date.getDate() + 200); 
-	cookies.set( "zip_code", zip_code, { expires: expire_date } );
+	res.cookie('zip_code', zip_code, { expires: expire_date, httpOnly: true });
     } else {
-    	zip_code = cookies.get( "zip_code" );
+    	zip_code = req.cookies.zip_code;
     }
 
     if(zip_code) {
@@ -41,7 +39,6 @@ app.get('/', function(req, res){
 });
 
 app.get('/:zip', function(req, res){
-    cookies = new Cookies( req, res );
     get_weather(res, req.params.zip, render_weather);
 });
 
@@ -52,7 +49,7 @@ function render_weather(zip, res, error, weather) {
         };
     }
     if(error) {
-        cookies.set( "zip_code", '');
+        res.clearCookie('zip_code');
         res.send(error);
     } else {
 	var coldness = 'Cold';
